@@ -2,37 +2,63 @@
 
 #include <QtNetwork/QUdpSocket>
 #include <QtNetwork/QHostAddress>
+#include <QtNetwork/QNetworkInterface>
+#include <QtNetwork/QNetworkDatagram>
 
 UdpSocket::UdpSocket(QObject *parent):
     QObject(parent)
 {
-    in = new QUdpSocket(this);
-    out = new QUdpSocket(this);
+    addressPPM.setAddress("192.168.104.107");
+    portPPM = 50080;
 
-    in->bind(QHostAddress::LocalHost, portIn);
-    out->connectToHost(QHostAddress::LocalHost, portOut);
+    const QList<QNetworkInterface> interfaces = QNetworkInterface::allInterfaces();
 
-    connect(in, SIGNAL(readyRead()), this, SLOT(catData()));
+    for(int i=0; i<interfaces.size(); i++)
+    {
+       qDebug() << interfaces.at(i).name();
+       QList<QNetworkAddressEntry> addresses = interfaces.at(i).addressEntries();
+       for(int a=0; a<addresses.size(); a++)
+       {
+           qDebug() << addresses.at(a).ip() << ", protocol:" << addresses.at(a).ip().protocol();
+       }
+    }
+
+    socket = new QUdpSocket(this);
+   // socket->bind(QHostAddress("192.168.104.10"), 0);
+
+    QByteArray data("Write datagramm from eth_32774");
+
+//    QNetworkDatagram datagram;
+//    datagram.setData(data);
+//    datagram.setDestination(addressPPM, portPPM);
+//    datagram.setSender(interfaces.at(0).interfaceFromName("ethernet_32774").addressEntries().at(1).ip());
+//    datagram.setInterfaceIndex(interfaces.at(0).interfaceFromName("ethernet_32774").index());
 
 
-   // out->writeDatagram("hi!", 16, QHostAddress::LocalHost, 50090);
+    socket->bind(interfaces.at(0).interfaceFromName("ethernet_32774").addressEntries().at(1).ip(), 0, QUdpSocket::ShareAddress);
+   // qDebug() << interfaces.at(0).interfaceFromName("ethernet_32774");
+
+    qDebug() << socket->writeDatagram("Bind", 4, addressPPM, portPPM);
+//    qDebug() << socket->writeDatagram(datagram);
+
+    connect(socket, SIGNAL(readyRead()), this, SLOT(catData()));
 }
 
 UdpSocket::~UdpSocket()
 {
-
 }
 
 void UdpSocket::catData()
 {
-    while(in->hasPendingDatagrams())
+    while(socket->hasPendingDatagrams())
     {
+        // try QNetworkDatagram
         QByteArray datagram;
-        datagram.resize(in->pendingDatagramSize());
+        datagram.resize(socket->pendingDatagramSize());
 
         QHostAddress sender;
         quint16 senderPort;
-        in->readDatagram(datagram.data(), datagram.size(), &sender, &senderPort);
+        socket->readDatagram(datagram.data(), datagram.size(), &sender, &senderPort);
 
         qDebug() << QTime::currentTime().toString()
                       << QString("recieved datagram %1:%2| %3.")
@@ -41,6 +67,6 @@ void UdpSocket::catData()
         QByteArray out_datagram = "I've received a message: ";
 
               out_datagram.append(datagram);
-              out->write(out_datagram.data());
+              qDebug() << socket->writeDatagram(out_datagram.data(), sender, senderPort);
     }
 }

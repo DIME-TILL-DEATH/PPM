@@ -15,11 +15,12 @@ class UdpSocket:public QObject
 {
     Q_OBJECT
 
-    QUdpSocket *in;
-    QUdpSocket *out;
+    QUdpSocket *socket;
+    QNetworkInterface *interface;
 
-    quint16 portIn = 50080;
-    quint16 portOut = 50081;
+    QHostAddress addressPPM;
+    quint16 portPPM;
+
 public:
     UdpSocket(QObject *parent=nullptr);
     ~UdpSocket();
