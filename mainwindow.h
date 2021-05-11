@@ -20,6 +20,8 @@ private slots:
 
     void on_lineEdit_textEdited(const QString &arg1);
 
+    void on_listWidget_itemSelectionChanged();
+
 private:
     QString sendMsg;
     QString recievedMsg;
