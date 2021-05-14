@@ -11,30 +11,9 @@ UdpSocket::UdpSocket(QObject *parent):
     addressPPM.setAddress("192.168.104.107");
     portPPM = 50080;
 
-//    const QList<QNetworkInterface> interfaces = QNetworkInterface::allInterfaces();
-
-//    for(int i=0; i<interfaces.size(); i++)
-//    {
-//       qDebug() << interfaces.at(i).name();
-//       QList<QNetworkAddressEntry> addresses = interfaces.at(i).addressEntries();
-//       for(int a=0; a<addresses.size(); a++)
-//       {
-//           qDebug() << addresses.at(a).ip() << ", protocol:" << addresses.at(a).ip().protocol();
-//       }
-//    }
-
     socket = new QUdpSocket(this);
-    socket->bind(QNetworkInterface::interfaceFromName("ethernet_32774").addressEntries().at(1).ip(), 0, QUdpSocket::ShareAddress);
-   // qDebug() << interfaceFromName("ethernet_32774");
-
-    socket->writeDatagram("Bind", 4, addressPPM, portPPM);
 
     connect(socket, SIGNAL(readyRead()), this, SLOT(catData()));
-}
-
-UdpSocket::~UdpSocket()
-{
-    qDebug() << "Destructor QUdpSocket called";
 }
 
 void UdpSocket::catData()
@@ -58,4 +37,17 @@ void UdpSocket::catData()
               out_datagram.append(datagram);
               socket->writeDatagram(out_datagram.data(), sender, senderPort);
     }
+}
+
+void UdpSocket::writeData(QByteArray msg)
+{
+    socket->writeDatagram(msg, addressPPM, portPPM);
+}
+
+bool UdpSocket::bind(QHostAddress addr)
+{
+    if(socket->state() == QAbstractSocket::BoundState)
+        socket->disconnectFromHost();
+
+    return socket->bind(addr, 61200, QUdpSocket::ShareAddress);
 }

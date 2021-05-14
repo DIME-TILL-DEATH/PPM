@@ -3,6 +3,10 @@
 
 #include <QMainWindow>
 
+#include "eth_settings_window.h"
+
+#include "udpsocket.h"
+
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -17,14 +21,17 @@ public:
 
 private slots:
     void on_pushButton_clicked();
-
     void on_lineEdit_textEdited(const QString &arg1);
 
-    void on_listWidget_itemSelectionChanged();
+    void ethSettingsChanged();
 
 private:
+    eth_settings_window ui_ethSettings;
+    UdpSocket udp;
+
     QString sendMsg;
     QString recievedMsg;
+
     Ui::MainWindow *ui;
 };
 #endif // MAINWINDOW_H

@@ -23,7 +23,9 @@ class UdpSocket:public QObject
 
 public:
     UdpSocket(QObject *parent=nullptr);
-    ~UdpSocket();
+
+    void writeData(QByteArray msg);
+    bool bind(QHostAddress addr);
 
 protected slots:
     void catData();
