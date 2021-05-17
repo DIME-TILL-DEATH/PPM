@@ -16,6 +16,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
 
     connect(&ui_ethSettings, SIGNAL(accepted()), this, SLOT(ethSettingsChanged()));
+    connect(&ui_ethSettings, SIGNAL(rejected()), this, SLOT(ethSettingsRejected()));
 }
 
 MainWindow::~MainWindow()
@@ -37,4 +38,15 @@ void MainWindow::on_lineEdit_textEdited(const QString &arg1)
 void MainWindow::ethSettingsChanged()
 {
     udp.bind(ui_ethSettings.getSelectedAdapter());
+}
+
+void MainWindow::ethSettingsRejected()
+{
+    if(!ui_ethSettings.getAppStartedStatus())
+        qApp->quit();
+}
+
+void MainWindow::on_actionEthernet_triggered()
+{
+    ui_ethSettings.show();
 }

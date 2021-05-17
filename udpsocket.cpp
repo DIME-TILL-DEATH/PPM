@@ -49,5 +49,25 @@ bool UdpSocket::bind(QHostAddress addr)
     if(socket->state() == QAbstractSocket::BoundState)
         socket->disconnectFromHost();
 
-    return socket->bind(addr, 61200, QUdpSocket::ShareAddress);
+    return socket->bind(addr, 0, QUdpSocket::ShareAddress);
+}
+
+void UdpSocket::setPPMPort(quint16 port)
+{
+    portPPM = port;
+}
+
+void UdpSocket::setPPMAddress(QHostAddress address)
+{
+    addressPPM = address;
+}
+
+quint16 UdpSocket::getPPMPort()
+{
+    return portPPM;
+}
+
+QHostAddress UdpSocket::getPPMAddress()
+{
+    return addressPPM;
 }

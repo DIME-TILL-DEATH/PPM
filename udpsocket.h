@@ -27,6 +27,12 @@ public:
     void writeData(QByteArray msg);
     bool bind(QHostAddress addr);
 
+    void setPPMPort(quint16 port);
+    void setPPMAddress(QHostAddress address);
+
+    quint16 getPPMPort();
+    QHostAddress getPPMAddress();
+
 protected slots:
     void catData();
 };

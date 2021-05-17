@@ -24,6 +24,8 @@ private slots:
     void on_lineEdit_textEdited(const QString &arg1);
 
     void ethSettingsChanged();
+    void ethSettingsRejected();
+    void on_actionEthernet_triggered();
 
 private:
     eth_settings_window ui_ethSettings;

@@ -3,23 +3,17 @@
 
 #include "udpsocket.h"
 
-#include <QtNetwork/QHostAddress>
-#include <QtNetwork/QNetworkInterface>
-
-
-// !!!!!!!!!!БЕЗОБРАЗИЕ!!!!!!!!!!!!!!!!!
-struct s_interfaceForSelect
-{
-    QNetworkInterface interface;
-    QHostAddress address;
-};
-QHash<QString, s_interfaceForSelect> interfacesForSelect;
-//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#include <QDialogButtonBox>
+#include <QMessageBox>
 
 eth_settings_window::eth_settings_window(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::eth_settings_window)
 {
+    validAddress = true;
+    validPort = true;
+    isAppStarted = false;
+
     ui->setupUi(this);
 }
 
@@ -31,6 +25,9 @@ eth_settings_window::~eth_settings_window()
 void eth_settings_window::showEvent(QShowEvent *event)
 {
     Q_UNUSED(event);
+
+    ui->listWidget->clear();
+    interfacesForSelect.clear();
 
     QList<QNetworkAddressEntry> addresses;
     QList<QNetworkInterface> interfaces = QNetworkInterface::allInterfaces();
@@ -51,6 +48,30 @@ void eth_settings_window::showEvent(QShowEvent *event)
            }
        }
     }
+
+    // Слегка костыльно
+    QList<QListWidgetItem*> currentAdapterSelection = ui->listWidget->findItems(selectedAdapter.toString(), Qt::MatchContains);
+    if(currentAdapterSelection.size() != 0)
+        ui->listWidget->setCurrentItem(currentAdapterSelection.at(0));
+
+}
+
+void eth_settings_window::accept()
+{
+    if(selectedAdapter.isNull())
+    {
+        QMessageBox::information(this, "Ошибка", "Адаптер не выбран!");
+    }
+    else if(!validAddress)
+    {
+        QMessageBox::information(this, "Ошибка", "Недопустимый IP адрес ППМ!");
+    }
+    else
+    {
+        isAppStarted = true;
+        emit accepted();
+        this->hide();
+    }
 }
 
 void eth_settings_window::on_listWidget_itemSelectionChanged()
@@ -59,7 +80,34 @@ void eth_settings_window::on_listWidget_itemSelectionChanged()
     selectedAdapter = interfacesForSelect.find(curItem->text())->address;
 }
 
+void eth_settings_window::on_lineEditIP_textEdited(const QString &arg1)
+{
+    QPalette *palette = new QPalette();
+
+
+    if(!addressPPM.setAddress(arg1))
+    {
+        palette->setColor(QPalette::Base, Qt::red);
+        validAddress = false;
+    }
+    else
+    {
+        validAddress = true;
+    }
+    ui->lineEditIP->setPalette(*palette);
+}
+
+void eth_settings_window::on_lineEditPort_textEdited(const QString &arg1)
+{
+    portPPM = arg1.toInt();
+}
+
 QHostAddress eth_settings_window::getSelectedAdapter()
 {
     return selectedAdapter;
+}
+
+bool eth_settings_window::getAppStartedStatus()
+{
+    return isAppStarted;
 }

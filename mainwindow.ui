@@ -70,6 +70,7 @@
     <property name="title">
      <string>Настройки</string>
     </property>
+    <addaction name="actionEthernet"/>
    </widget>
    <addaction name="menu"/>
    <addaction name="menu_2"/>
@@ -88,6 +89,14 @@
   <action name="action_4">
    <property name="text">
     <string>Выход</string>
+   </property>
+  </action>
+  <action name="actionEthernet">
+   <property name="text">
+    <string>Ethernet</string>
+   </property>
+   <property name="toolTip">
+    <string>Настройки Ethernet</string>
    </property>
   </action>
  </widget>
